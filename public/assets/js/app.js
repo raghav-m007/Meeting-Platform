@@ -119,7 +119,9 @@ var AppProcess = (function () {
       $("#videoCamOnOff").html(
         "<span class='material-icons' style='width:100%;'>videocam_off</span>"
       );
-
+      $("#ScreenShareOnOf").html(
+        '<span class="material-icons">present_to_all</span><div>Present Now</div>'
+      );
       video_st = newVideoState;
 
       removeVideoStream(rtp_vid_senders);
@@ -149,6 +151,12 @@ var AppProcess = (function () {
           },
           audio: false,
         });
+        vstream.oninactive = (e) => {
+          removeVideoStream(rtp_vid_senders);
+          $("#ScreenShareOnOf").html(
+            '<span class="material-icons ">present_to_all</span><div >Present Now</div>'
+          );
+        };
       }
       if (vstream && vstream.getVideoTracks().length > 0) {
         videoCamTrack = vstream.getVideoTracks()[0];
@@ -294,6 +302,25 @@ var AppProcess = (function () {
       }
     }
   }
+  async function closeConnection(connid) {
+    peers_connection_ids[connid] = null;
+    if (peers_connection[connid]) {
+      peers_connection[connid].close();
+      peers_connection[connid] = null;
+    }
+    if (remote_aud_stream[connid]) {
+      remote_aud_stream[connid].getTracks().forEach((t) => {
+        if (t.stop) t.stop();
+      });
+      remote_aud_stream[connid] = null;
+    }
+    if (remote_vid_stream[connid]) {
+      remote_vid_stream[connid].getTracks().forEach((t) => {
+        if (t.stop) t.stop();
+      });
+      remote_vid_stream[connid] = null;
+    }
+  }
   return {
     setNewConnection: async function (connid) {
       await setConnection(connid);
@@ -303,6 +330,9 @@ var AppProcess = (function () {
     },
     processClientFunc: async function (data, from_connid) {
       await SDPProcess(data, from_connid);
+    },
+    closeConnectionCall: async function (connid) {
+      await closeConnection(connid);
     },
   };
 })();
@@ -318,6 +348,7 @@ var MyApp = (function () {
     $("#me h2").text(user_id + "(Me)");
     document.title = user_id;
     event_process_for_signaling_server();
+    eventHandeling();
   }
 
   function event_process_for_signaling_server() {
@@ -339,6 +370,10 @@ var MyApp = (function () {
         }
       }
     });
+    socket.on("inform_other_about_disconnected_user", function (data) {
+      $("#" + data.connId).remove();
+      AppProcess.closeConnectionCall(data.connId);
+    });
     socket.on("inform_others_about_me", function (data) {
       addUser(data.other_user_id, data.connId);
       AppProcess.setNewConnection(data.connId);
@@ -353,6 +388,45 @@ var MyApp = (function () {
     });
     socket.on("SDPProcess", async function (data) {
       await AppProcess.processClientFunc(data.message, data.from_connid);
+    });
+    socket.on("showChatMessage", function (data) {
+      var time = new Date();
+      var lTime = time.toLocaleString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      });
+      var div = $("<div>").html(
+        "<span class='font-weight-bold mr-3' style='color:black'>" +
+        data.from +
+        "</span>" +
+        lTime +
+        "</br>" +
+        data.message
+      );
+      $("#messages").append(div);
+    });
+  }
+  function eventHandeling() {
+    $("#btnsend").on("click", function () {
+      var msgData = $("#msgbox").val();
+      socket.emit("sendMessage", msgData);
+      var time = new Date();
+      var lTime = time.toLocaleString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      });
+      var div = $("<div>").html(
+        "<span class='font-weight-bold mr-3' style='color:black'>" +
+        user_id +
+        "</span>" +
+        lTime +
+        "</br>" +
+        msgData
+      );
+      $("#messages").append(div);
+      $("#msgbox").val("");
     });
   }
   function addUser(other_user_id, connId, userNum) {
