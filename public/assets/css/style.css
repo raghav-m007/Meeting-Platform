@@ -161,9 +161,10 @@ video {
     top: 20.5%;
     left: 35.5%;
     display: block;
+    z-index: 999;
     box-shadow: 0 0 5px white;
     border-radius: 10px;
-    z-index: 999;
+
     columns: white;
     border: 2px solid white;
 }
