@@ -512,6 +512,18 @@ var MyApp = (function () {
     });
   });
 
+
+  $(document).mouseup(function (e) {
+    var container = new Array();
+    container.push($(".g-details"));
+    container.push($(".g-right-details-wrap"));
+    $.each(container, function (key, value) {
+      if (!$(value).is(e.target) && $(value).has(e.target).length == 0) {
+        $(value).hide(300);
+      }
+    });
+  });
+
   $(document).on("click", ".call-cancel-action", function () {
     $(".top-box-show").html("");
   });
@@ -525,6 +537,82 @@ var MyApp = (function () {
     setTimeout(function () {
       $(".link-conf").hide();
     }, 3000);
+  });
+  $(document).on("click", ".copy_info", function () {
+    var $temp = $("<input>");
+    $("body").append($temp);
+    $temp.val($(".meeting_url").text()).select();
+    document.execCommand("copy");
+    $temp.remove();
+    $(".link-conf").show();
+    setTimeout(function () {
+      $(".link-conf").hide();
+    }, 3000);
+  });
+  $(document).on("click", ".meeting-details-button", function () {
+    $(".g-details").slideDown(300);
+  });
+  $(document).on("click", ".g-details-heading-attachment", function () {
+    $(".g-details-heading-show").hide();
+    $(".g-details-heading-show-attachment").show();
+    $(this).addClass("active");
+    $(".g-details-heading-detail").removeClass("active");
+
+  });
+  $(document).on("click", ".g-details-heading-detail", function () {
+    $(".g-details-heading-show").show();
+    $(".g-details-heading-show-attachment").hide();
+    $(this).addClass("active");
+    $(".g-details-heading-attachment").removeClass("active");
+  });
+  var base_url = window.location.origin;
+
+  $(document).on("change", ".custom-file-input", function () {
+    var fileName = $(this).val().split("\\").pop();
+    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+  });
+
+  $(document).on("click", ".share-attach", function (e) {
+    e.preventDefault();
+    var att_img = $("#customFile").prop("files")[0];
+    var formData = new FormData();
+    formData.append("zipfile", att_img);
+    formData.append("meeting_id", meeting_id);
+    formData.append("username", user_id);
+    console.log(formData);
+    $.ajax({
+      url: base_url + "/attachimg",
+      type: "POST",
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        console.log(response);
+      },
+      error: function () {
+        console.log("error");
+      },
+    });
+
+    var attachFileArea = document.querySelector(".show-attach-file");
+    var attachFileName = $("#customFile").val().split("\\").pop();
+    var attachFilePath =
+      "public/attachment/" + meeting_id + "/" + attachFileName;
+    attachFileArea.innerHTML +=
+      "<div class='left-align' style='display:flex; align-items:center;'><img src='public/assets/images/other.jpg' style='height:40px;width:40px;' class='caller-image circle'><div style='font-weight:600;margin:0 5px;'>" +
+      user_id +
+      "</div>:<div><a style='color:#007bff;' href='" +
+      attachFilePath +
+      "' download>" +
+      attachFileName +
+      "</a></div></div><br/>";
+    $("label.custom-file-label").text("");
+    socket.emit("fileTransferToOther", {
+      username: user_id,
+      meetingid: meeting_id,
+      filePath: attachFilePath,
+      fileName: attachFileName,
+    });
   });
 
 
