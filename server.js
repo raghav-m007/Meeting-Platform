@@ -30,7 +30,7 @@ app.get('/google', passport.authenticate('google', { scope: ['profile','email'] 
 
 app.get(
   '/google/callback',
-  passport.authenticate('google', { failureRedirect: '/'  , scope: ['profile','email']}),
+  passport.authenticate('google', { failureRedirect: '/dbet'  , scope: ['profile','email']}),
   (req, res) => {
     res.redirect('/')
   }
@@ -38,7 +38,7 @@ app.get(
 
 app.get(
   '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/' , scope: ['profile','email'] }),
+  passport.authenticate('google', { failureRedirect: '/tet' , scope: ['profile','email'] }),
   (req, res) => {
     res.redirect('/')
   }
@@ -58,18 +58,24 @@ app.get('/', (req, res) => {
   res.render('action');
 })
 
+app.get('/123', (req, res) => {
+  ensureAuth(req,res,()=>{
+    res.render('index');
+  });
+})
+
 function ensureAuth (req, res, next){
   if (req.isAuthenticated()) {
     return next()
   } else {
-    res.redirect('/')
+    res.redirect('/auth/google/callback/')
   }
 }
 function ensureGuest(req, res, next) {
   if (!req.isAuthenticated()) {
     return next();
   } else {
-    res.redirect('/');
+    res.redirect('/google/callback');
   }
 }
 
