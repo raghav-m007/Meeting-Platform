@@ -1,16 +1,84 @@
 const express = require("express");
 const path = require("path");
+const passport = require('passport')
 var app = express();
-var server = app.listen(3000, function () {
-  console.log("Listening on port 3000");
+var server = app.listen(3001, function () {
+  console.log("Listening on port 3001");
 });
+const dotenv = require('dotenv')
 const fs = require('fs');
 const fileUpload = require("express-fileupload");
+require('./config/passport')(passport)
+const session = require('express-session');
+// After you declare "app"
 const io = require("socket.io")(server, {
   allowEIO3: true, // false by default
 });
+dotenv.config({ path: './.env' })
 app.use(express.static(path.join(__dirname, "")));
 var userConnections = [];
+
+app.use(session({ secret: 'melody hensley is my spirit animal' }));
+app.use(express.urlencoded({ extended: true }))
+const router = express.Router()
+app.use(express.static('public'))
+app.set('view engine', 'ejs');
+app.use(passport.initialize())
+app.use(passport.session())
+
+app.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
+
+app.get(
+  '/google/callback',
+  passport.authenticate('google', { failureRedirect: '/dbet', scope: ['profile', 'email'] }),
+  (req, res) => {
+    res.redirect('/')
+  }
+)
+
+app.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/tet', scope: ['profile', 'email'] }),
+  (req, res) => {
+    res.redirect('/')
+  }
+)
+
+app.get('/logout', (req, res) => {
+  req.logout(function (err) {
+    if (err) {
+      console.log(err)
+      return next(err);
+    }
+    res.redirect('/');
+  });
+})
+
+app.get('/', (req, res) => {
+  res.render('action');
+})
+
+app.get('/123', (req, res) => {
+  ensureAuth(req, res, () => {
+    res.render('index');
+  });
+})
+
+function ensureAuth(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next()
+  } else {
+    res.redirect('/auth/google/callback/')
+  }
+}
+function ensureGuest(req, res, next) {
+  if (!req.isAuthenticated()) {
+    return next();
+  } else {
+    res.redirect('/google/callback');
+  }
+}
+
 io.on("connection", (socket) => {
   console.log("socket id is ", socket.id);
 
@@ -94,6 +162,7 @@ io.on("connection", (socket) => {
 });
 
 app.use(fileUpload());
+
 app.post("/attachimg", function (req, res) {
   var data = req.body;
   var imageFile = req.files.zipfile;
