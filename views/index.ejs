@@ -18,11 +18,12 @@
             var meeting_id = urlParams.get('meetingID');
             var user_id = window.prompt('Enter your userid');
 
-            if (!user_id || !meeting_id) {
+            if (!user_id) {
                 alert('User id or meeting id missing');
-                window.location.href = '/action.html';
+                window.location.href = '/';
                 return;
             }
+            
             $("#meetingContainer").show();
 
             MyApp._init(user_id, meeting_id);

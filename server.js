@@ -2,8 +2,8 @@ const express = require("express");
 const path = require("path");
 const passport = require('passport')
 var app = express();
-var server = app.listen(3001, function () {
-  console.log("Listening on port 3001");
+var server = app.listen(3000, function () {
+  console.log("Listening on port 3000");
 });
 const dotenv = require('dotenv')
 const fs = require('fs');
@@ -58,7 +58,7 @@ app.get('/', (req, res) => {
   res.render('action');
 })
 
-app.get('/123', (req, res) => {
+app.get('/meetingUrl', (req, res) => {
   ensureAuth(req, res, () => {
     res.render('index');
   });
