@@ -23,7 +23,7 @@
                 window.location.href = '/';
                 return;
             }
-            
+
             $("#meetingContainer").show();
 
             MyApp._init(user_id, meeting_id);
@@ -35,6 +35,19 @@
     <main class=" d-flex flex-column home-wrap">
         <div class="g-top text-light">
             <div class="top-remote-video-show-wrap d-flex">
+                <div id="sketch" style=" width: 21.5%; position: relative;">
+                    <!--Initially hidden whiteboard-->
+                    <canvas className="board" id="board" style="background: white; border-radius:20px"></canvas>
+                    <div style="text-align: center; background: white; border-radius: 40px;">
+                        <span class="material-icons" style="width: 100%; color:black"
+                            onClick="changeMode(1);">create</span>
+                        <span class=" material-icons" style="width: 100%;color:black"
+                            onClick="changeMode(0)">clear</span>
+                        <!-- <i class="fas fa-pen wbControls" onClick="changeMode(1)"></i>
+                        <i class="fas fa-eraser wbControls" onClick="changeMode(0)"></i> -->
+                        <button id="clr" class="wbControls">Clear board</button>
+                    </div>
+                </div>
                 <div id="meetingContainer" style="display: none;flex-basis: 75%;">
                     <div class="call-wrap" style="background-color: black;">
                         <div class="video-wrap" id="divUsers" style="display:flex; flex-wrap:wrap">
@@ -53,6 +66,11 @@
                                 <h2 class="display-center" style="font-size: 14px;"></h2>
                                 <!-- .....................HandRaise .................-->
                                 <div class="display-center" style="position: relative;">
+
+                                    <div class="sketch-toggle-wrap action-icon-style display-center cursor-pointer"
+                                        id="board"><span class="material-icons" style="width: 100%;">square</span>
+                                    </div>
+
                                     <img src="/public/Assets/images/handRaise.png"
                                         style="position: absolute;height: 30px;top:8%; left: 3%;display: none;" />
                                     <!-- .....................HandRaise .................-->
@@ -213,6 +231,15 @@
                 </div>
                 <div class="video-toggle-wrap action-icon-style display-center cursor-pointer" id="videoCamOnOff"><span
                         class="material-icons" style="width: 100%;">videocam_off</span></div>
+
+                <div class="sketch-toggle-wrap action-icon-style display-center cursor-pointer" id="wbShowHide"
+                    onClick="board()"><span class="material-icons" style="width: 100%;">square</span></div>
+
+                <!-- <div id="wbShowHide" class="main__controls__button main__video_button" onClick="board()">
+                            <i class="fas fa-signature"></i>
+                </div> -->
+
+
                 <!-- .....................HandRaise .................-->
                 <div class="handRaiseAction display-center cursor-pointer" id="handRaiseAction"
                     style="margin-left: 5px;"><Img src="/public/Assets/images/handRaiseBlack.png"

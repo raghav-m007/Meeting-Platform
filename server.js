@@ -141,6 +141,25 @@ io.on("connection", (socket) => {
       });
     }
   });
+
+
+
+  //DRAWINGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+  socket.on('draw', (data) => {
+    userConnections.forEach(con => {
+      if (con.id != socket.id) {
+        con.emit('ondraw', { x: data.x, y: data.y })
+      }
+    })
+  })
+
+  // socket.on('draw', (data) => {
+  //   socket.broadcast.emit('ondraw', { x: data.x, y: data.y });
+
+  // })  
+
+
+
   socket.on("disconnect", function () {
     console.log("Disconnected");
     var disUser = userConnections.find((p) => p.connectionId == socket.id);

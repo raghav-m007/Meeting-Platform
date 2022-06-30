@@ -15,6 +15,8 @@ var AppProcess = (function () {
   };
   var video_st = video_states.None;
   var videoCamTrack;
+
+  // var io = io.connect("http://localhost:3000/")
   var rtp_vid_senders = [];
   async function _init(SDP_function, my_connid) {
     serverProcess = SDP_function;
@@ -53,6 +55,140 @@ var AppProcess = (function () {
         await videoProcess(video_states.Camera);
       }
     });
+
+
+    // const board = () => {
+    //   wb = document.querySelector("#sketch");
+    //   if (wb.style.display === "none") {
+    //     wb.style.display = "block";
+    //     document.querySelector("#wbShowHide").classList.add("bg-yellow");
+    //     drawOnCanvas();
+    //   }
+    //   else {
+    //     wb.style.display = "none";
+    //     document.querySelector("#wbShowHide").classList.remove("bg-yellow");
+    //   }
+    // }
+
+
+    // function changeState(mode) {
+    //   if (mode === 1) {
+    //     ctx.strokeStyle = 'blue';
+    //     ctx.lineWidth = 5;
+    //   }
+    //   else {
+    //     ctx.strokeStyle = 'white';
+    //     ctx.lineWidth = 8;
+    //   }
+    // }
+
+    // const changeMode = (a) => {
+    //   changeState(a);
+    // }
+
+
+
+    let canvas = document.getElementById('board');
+    canvas.style.width = '100%';
+    canvas.style.height = '80%';
+    let ctx = canvas.getContext('2d');
+
+    let x;
+    let y;
+    let mouseDown = false;
+
+    window.onmousedown = (e) => {
+      ctx.moveTo(x, y);
+      mouseDown = true;
+    };
+
+    window.onmouseup = (e) => {
+      mouseDown = false;
+    };
+
+    // io.on('ondraw', ({ x, y }) => {
+    //   ctx.lineTo(x, y);
+    //   ctx.stroke();
+
+    // })
+
+    window.onmousemove = (e) => {
+      x = e.clientX;
+      y = e.clientY;
+
+      if (mouseDown) {
+        // io.emit('draw', { x, y });
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+    }
+    // function drawOnCanvas() {
+    //   var ctx = this.ctx;
+
+    //   var sketch = document.querySelector('#sketch');
+    //   var sketch_style = getComputedStyle(sketch);
+    //   // Make it visually fill the positioned parent
+
+    //   // ...then set the internal size to match
+    //   canvas.width = canvas.offsetWidth;
+    //   canvas.height = canvas.offsetHeight;
+
+    //   var mouse = { x: 0, y: 0 };
+    //   var last_mouse = { x: 0, y: 0 };
+
+    //   //for clearing the board
+    //   document.getElementById('clr').addEventListener('click', function () {
+    //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //   }, false);
+
+    //   /* Mouse Capturing Work */
+    //   canvas.addEventListener('mousemove', function (e) {
+    //     last_mouse.x = mouse.x;
+    //     last_mouse.y = mouse.y;
+
+    //     mouse.x = e.pageX - this.offsetLeft;
+    //     mouse.y = e.pageY - this.offsetTop;
+    //   }, false);
+
+
+    //   /* Drawing on Paint App */
+    //   ctx.lineWidth = 5;
+    //   ctx.lineJoin = 'round';
+    //   ctx.lineCap = 'round';
+    //   ctx.strokeStyle = 'blue';
+    //   // setTimeout(()=>{
+    //   //   ctx.strokeStyle = (writeMode===1)?'blue':'white';  //choose pen or eraser (pen is 1 and eraser is 0)
+    //   // },100)
+
+    //   canvas.addEventListener('mousedown', function (e) {
+    //     canvas.addEventListener('mousemove', onPaint, false);
+    //   }, false);
+
+    //   canvas.addEventListener('mouseup', function () {
+    //     canvas.removeEventListener('mousemove', onPaint, false);
+    //   }, false);
+
+    //   var root = this;
+
+
+    //   var onPaint = function () {
+    //     ctx.beginPath();
+    //     ctx.moveTo(last_mouse.x, last_mouse.y);
+    //     ctx.lineTo(mouse.x, mouse.y);
+    //     ctx.closePath();
+    //     ctx.stroke();
+    //     if (root.timeout != undefined) clearTimeout(root.timeout);
+    //     root.timeout = setTimeout(function () {
+    //       var base64ImageData = canvas.toDataURL("image/png");
+    //       root.socket.emit("canvas-data", base64ImageData);
+    //     }, 1000)
+    //   };
+
+
+
+
+
+
 
     $("#ScreenShareOnOf").on("click", async function () {
       if (video_st == video_states.ScreenShare) {
@@ -196,6 +332,10 @@ var AppProcess = (function () {
       },
     ],
   };
+
+
+
+
   async function setConnection(connid) {
     var connection = new RTCPeerConnection(iceConfiguration);
 
